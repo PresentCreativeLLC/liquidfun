@@ -1733,10 +1733,10 @@ void b2ParticleSystem::ComputeDepth()
 	for (int32 i = 0; i < groupsToUpdateCount; i++)
 	{
 		const b2ParticleGroup* group = groupsToUpdate[i];
-		for (int32 i = group->m_firstIndex; i < group->m_lastIndex; i++)
+		for (int32 j = group->m_firstIndex; j < group->m_lastIndex; j++)
 		{
-			float32 w = m_accumulationBuffer[i];
-			m_depthBuffer[i] = w < 0.8f ? 0 : b2_maxFloat;
+			float32 w = m_accumulationBuffer[j];
+			m_depthBuffer[j] = w < 0.8f ? 0 : b2_maxFloat;
 		}
 	}
 	// The number of iterations is equal to particle number from the deepest
@@ -1775,9 +1775,9 @@ void b2ParticleSystem::ComputeDepth()
 	for (int32 i = 0; i < groupsToUpdateCount; i++)
 	{
 		const b2ParticleGroup* group = groupsToUpdate[i];
-		for (int32 i = group->m_firstIndex; i < group->m_lastIndex; i++)
+		for (int32 j = group->m_firstIndex; j < group->m_lastIndex; j++)
 		{
-			float32& p = m_depthBuffer[i];
+			float32& p = m_depthBuffer[j];
 			if (p < b2_maxFloat)
 			{
 				p *= m_particleDiameter;
@@ -2730,9 +2730,9 @@ void b2ParticleSystem::RemoveSpuriousBodyContacts()
 				b2ParticleSystem::BodyContactCompare);
 
 	int32 discarded = 0;
-	std::remove_if(m_bodyContactBuffer.Begin(),
+	static_cast<void>(std::remove_if(m_bodyContactBuffer.Begin(),
 					m_bodyContactBuffer.End(),
-					b2ParticleBodyContactRemovePredicate(this, &discarded));
+					b2ParticleBodyContactRemovePredicate(this, &discarded)));
 
 	m_bodyContactBuffer.SetCount(m_bodyContactBuffer.GetCount() - discarded);
 }
