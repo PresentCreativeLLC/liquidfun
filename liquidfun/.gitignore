@@ -10,6 +10,7 @@
 *.sln
 *.suo
 *.keystore
+Box2D/.vs
 Box2D/**/MinSizeRel/**
 Box2D/**/RelWithDebInfo/**
 Box2D/*.def
