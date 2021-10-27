@@ -1,107 +1,245 @@
-/*
-* Copyright (c) 2006-2007 Erin Catto http://www.box2d.org
-* Copyright (c) 2013 Google, Inc.
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+
 
 #include <Box2D/Box2D.h>
 #include <stdio.h>
-#include <AndroidUtil/AndroidMainWrapper.h>
-#include <AndroidUtil/AndroidLogPrint.h>
 
-// This is a simple example of building and running a simulation
-// using Box2D. Here we create a large ground box and a small dynamic
-// box.
-// There are no graphics for this example. Box2D is meant to be used
-// with your rendering engine in your game engine.
-int main(int argc, char** argv)
-{
-	B2_NOT_USED(argc);
-	B2_NOT_USED(argv);
+#define DllExport _declspec(dllexport)
 
-	// Define the gravity vector.
-	b2Vec2 gravity(0.0f, -10.0f);
+#define FALSE 0
+#define TRUE 1
 
-	// Construct a world object, which will hold and simulate the rigid bodies.
-	b2World world(gravity);
+struct Vec2 {
+	float x, y;
+};
 
-	// Define the ground body.
-	b2BodyDef groundBodyDef;
-	groundBodyDef.position.Set(0.0f, -10.0f);
+struct BodyTransform {
+	b2Vec2 position;
+	float angle;
+};
 
-	// Call the body factory which allocates memory for the ground body
-	// from a pool and creates the ground box shape (also from a pool).
-	// The body is also added to the world.
-	b2Body* groundBody = world.CreateBody(&groundBodyDef);
+struct BodyDef {
+	b2BodyType bodyType;
+	b2Vec2 position;
+	float angle;
+	float linearDamping;
+	float angularDamping;
+	float gravityScale;
+	int allowSleepFlag;
+	int awakeFlag;
+	int fixedRotationFlag;
+	int isSensorFlag;
+	float density;
+	float friction;
+	float restitution;
+};
 
-	// Define the ground box shape.
-	b2PolygonShape groundBox;
+struct CircleShapeDef {
+	float radius;
+};
 
-	// The extents are the half-widths of the box.
-	groundBox.SetAsBox(50.0f, 10.0f);
+struct BoxShapeDef {
+	float hx;
+	float hy;
+};
 
-	// Add the ground fixture to the ground body.
-	groundBody->CreateFixture(&groundBox, 0.0f);
+struct PolygonShapeDef {
+	int count;
+	b2Vec2* vertices;
+};
 
-	// Define the dynamic body. We set its position and call the body factory.
+struct ChainShapeDef {
+	int count;
+	b2Vec2* vertices;
+};
+
+b2BodyDef BuildBodyDef(BodyDef& definition) {
 	b2BodyDef bodyDef;
-	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 4.0f);
-	b2Body* body = world.CreateBody(&bodyDef);
+	bodyDef.type = definition.bodyType;
+	bodyDef.position = definition.position;
+	bodyDef.angle = definition.angle;
+	bodyDef.linearDamping = definition.linearDamping;
+	bodyDef.angularDamping = definition.angularDamping;
+	bodyDef.gravityScale = definition.gravityScale;
+	bodyDef.fixedRotation = definition.fixedRotationFlag == TRUE;
 
-	// Define another box shape for our dynamic body.
-	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(1.0f, 1.0f);
+	return bodyDef;
+}
 
-	// Define the dynamic body fixture.
+b2FixtureDef BuildFixtureDef(BodyDef definition, b2Shape* shape) 
+{
 	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &dynamicBox;
+	fixtureDef.shape = shape;
+	fixtureDef.isSensor = definition.isSensorFlag == TRUE;
+	fixtureDef.density = definition.density;
+	fixtureDef.friction = definition.friction;
+	fixtureDef.restitution = definition.restitution;
+	
+	return fixtureDef;
+}
 
-	// Set the box density to be non-zero, so it will be dynamic.
-	fixtureDef.density = 1.0f;
+extern "C" 
+{
 
-	// Override the default friction.
-	fixtureDef.friction = 0.3f;
-
-	// Add the shape to the body.
-	body->CreateFixture(&fixtureDef);
-
-	// Prepare for simulation. Typically we use a time step of 1/60 of a
-	// second (60Hz) and 10 iterations. This provides a high quality simulation
-	// in most game scenarios.
-	float32 timeStep = 1.0f / 60.0f;
-	int32 velocityIterations = 6;
-	int32 positionIterations = 2;
-
-	// This is our little game loop.
-	for (int32 i = 0; i < 60; ++i)
+	DllExport b2World* CreateWorld(float gravityX, float gravityY)
 	{
-		// Instruct the world to perform a single step of simulation.
-		// It is generally best to keep the time step and iterations fixed.
-		world.Step(timeStep, velocityIterations, positionIterations);
+		// Define the gravity vector.
+		b2Vec2 gravity(gravityX, gravityY);
 
-		// Now print the position and angle of the body.
-		b2Vec2 position = body->GetPosition();
-		float32 angle = body->GetAngle();
-
-		printf("%4.2f %4.2f %4.2f\n", position.x, position.y, angle);
+		// Construct a world object, which will hold and simulate the rigid bodies.
+		b2World* world = new b2World(gravity);
+		return world;
 	}
 
-	// When the world destructor is called, all bodies and joints are freed. This can
-	// create orphaned pointers, so be careful about your world management.
+	DllExport void DeleteWorld(b2World* world)
+	{
+		if (world == nullptr)
+			return;
+		delete world;
+	}
 
-	return 0;
+	DllExport b2Body* CreateCircleBody(b2World* world, BodyDef definition, CircleShapeDef shape) {
+
+		if (world == nullptr)
+			return nullptr;
+
+		b2BodyDef bodyDef = BuildBodyDef(definition);
+
+		b2Body* body = world->CreateBody(&bodyDef);
+		b2CircleShape circleShape;
+		circleShape.SetPosition(0.0f, 0.0f);
+		circleShape.m_radius = shape.radius;
+
+		b2FixtureDef fixtureDef = BuildFixtureDef(definition, &circleShape);
+		body->CreateFixture(&fixtureDef);
+
+		return body;
+	}
+
+	DllExport b2Body* CreateBoxBody(b2World* world, BodyDef definition, BoxShapeDef shape) {
+
+		if (world == nullptr)
+			return nullptr;
+
+		b2BodyDef bodyDef = BuildBodyDef(definition);
+
+		b2Body* body = world->CreateBody(&bodyDef);
+		b2PolygonShape polygonShape;
+		polygonShape.SetAsBox(shape.hx, shape.hy);
+
+		b2FixtureDef fixtureDef = BuildFixtureDef(definition, &polygonShape);
+		body->CreateFixture(&fixtureDef);
+
+		return body;
+	}
+
+	DllExport b2Body* CreatePolygonBody(b2World* world, BodyDef definition, PolygonShapeDef shape) {
+
+		if (world == nullptr)
+			return nullptr;
+
+		b2BodyDef bodyDef = BuildBodyDef(definition);
+		bodyDef.fixedRotation = false;
+
+		b2Body* body = world->CreateBody(&bodyDef);
+		b2PolygonShape polygonShape;
+		polygonShape.Set(shape.vertices, shape.count);
+
+		b2FixtureDef fixtureDef = BuildFixtureDef(definition, &polygonShape);
+		body->CreateFixture(&fixtureDef);
+
+		return body;
+	}
+
+	DllExport b2Body* CreateChainBody(b2World* world, BodyDef definition, ChainShapeDef shape) {
+
+		if (world == nullptr)
+			return nullptr;
+
+		b2BodyDef bodyDef = BuildBodyDef(definition);
+		bodyDef.fixedRotation = false;
+
+		b2Body* body = world->CreateBody(&bodyDef);
+		b2ChainShape chainShape;
+		chainShape.CreateChain(shape.vertices, shape.count);
+
+		b2FixtureDef fixtureDef = BuildFixtureDef(definition, &chainShape);
+		body->CreateFixture(&fixtureDef);
+	
+		return body;
+	}
+
+	DllExport void DestroyBody(b2World* world, b2Body* body) {
+		if (world == nullptr || body == nullptr)
+			return;
+
+		world->DestroyBody(body);
+	}
+
+	DllExport void Step(b2World* world, float timestep, int velocityIterations, int positionIterations) {
+		if (world == nullptr)
+			return;
+		world->Step(timestep, velocityIterations, positionIterations);
+		world->ClearForces();
+	}
+
+	DllExport BodyTransform GetTransform(b2Body* body) {
+
+		BodyTransform transform;
+
+		if (body == nullptr)
+			return transform;
+		
+		transform.position = body->GetPosition();
+		transform.angle = body->GetAngle();
+
+		return transform;
+	}
+
+	DllExport void SetTransform(b2Body* body, BodyTransform transform) {
+		body->SetTransform(transform.position, transform.angle);
+	}
+
+	DllExport Vec2 GetWorldCenter(b2Body* body) {
+		 
+		const b2Vec2& value = body->GetWorldCenter();
+
+		Vec2 vec;
+		vec.x = value.x;
+		vec.y = value.y;
+		return vec;
+	}
+
+	DllExport Vec2 GetLocalCenter(b2Body* body) {
+
+		const b2Vec2& value = body->GetLocalCenter();
+
+		Vec2 vec;
+		vec.x = value.x;
+		vec.y = value.y;
+		return vec;
+	}
+
+	DllExport void SetLinearVelocity(b2Body* body, b2Vec2 v) {
+		body->SetLinearVelocity(v);
+	}
+
+	DllExport Vec2 GetLinearVelocity(b2Body* body) {
+
+		const b2Vec2& value = body->GetLinearVelocity();
+
+		Vec2 vec;
+		vec.x = value.x;
+		vec.y = value.y;
+		return vec;
+	}
+
+	DllExport void SetAngularVelocity(b2Body* body, float omega) {
+		body->SetAngularVelocity(omega);
+	}
+
+	DllExport float GetAngularVelocity(b2Body* body) {
+		return body->GetAngularVelocity();
+	}
+
 }
+
