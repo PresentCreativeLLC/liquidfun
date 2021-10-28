@@ -61,6 +61,8 @@ b2BodyDef BuildBodyDef(BodyDef& definition) {
 	bodyDef.angularDamping = definition.angularDamping;
 	bodyDef.gravityScale = definition.gravityScale;
 	bodyDef.fixedRotation = definition.fixedRotationFlag == TRUE;
+	bodyDef.allowSleep = definition.allowSleepFlag == TRUE;
+	bodyDef.awake = definition.awakeFlag == TRUE;
 
 	return bodyDef;
 }
@@ -259,6 +261,38 @@ extern "C"
 
 	DllExport void ApplyAngularImpulse(b2Body* body, float impulse, int wake) {
 		return body->ApplyAngularImpulse(impulse, wake);
+	}
+
+	DllExport void SetLinearDamping(b2Body* body, float linearDamping) {
+		return body->SetLinearDamping(linearDamping);
+	}
+
+	DllExport void SetAngularDamping(b2Body* body, float angularDamping) {
+		return body->SetAngularDamping(angularDamping);
+	}
+
+	DllExport void SetGravityScale(b2Body* body, float scale) {
+		return body->SetGravityScale(scale);
+	}
+
+	DllExport void SetType(b2Body* body, b2BodyType type) {
+		return body->SetType(type);
+	}
+
+	DllExport void SetSleepingAllowed(b2Body* body, int flag) {
+		return body->SetSleepingAllowed(flag == TRUE);
+	}
+
+	DllExport void SetAwake(b2Body* body, int flag) {
+		return body->SetAwake(flag == TRUE);
+	}
+
+	DllExport void SetActive(b2Body* body, int flag) {
+		return body->SetActive(flag == TRUE);
+	}
+
+	DllExport void SetFixedRotation(b2Body* body, int flag) {
+		return body->SetFixedRotation(flag == TRUE);
 	}
 }
 
