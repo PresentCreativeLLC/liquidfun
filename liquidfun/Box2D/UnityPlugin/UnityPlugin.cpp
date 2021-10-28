@@ -241,5 +241,24 @@ extern "C"
 		return body->GetAngularVelocity();
 	}
 
+	DllExport void ApplyForce(b2Body* body, b2Vec2 force, b2Vec2 point, int wake) {
+		return body->ApplyForce(force, point, wake);
+	}
+
+	DllExport void ApplyForceToCenter(b2Body* body, b2Vec2 force, int wake) {
+		return body->ApplyForceToCenter(force, wake);
+	}
+
+	DllExport void ApplyTorque(b2Body* body, float torque, int wake) {
+		return body->ApplyTorque(torque, wake);
+	}
+
+	DllExport void ApplyLinearImpulse(b2Body* body, b2Vec2 impulse, b2Vec2 point, int wake) {
+		return body->ApplyLinearImpulse(impulse, point, wake);
+	}
+
+	DllExport void ApplyAngularImpulse(b2Body* body, float impulse, int wake) {
+		return body->ApplyAngularImpulse(impulse, wake);
+	}
 }
 
