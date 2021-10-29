@@ -3,6 +3,8 @@
 #include <Box2D/Box2D.h>
 #include <stdio.h>
 
+#include "UnityContactListener.h"
+
 #define DllExport _declspec(dllexport)
 
 #define FALSE 0
@@ -98,6 +100,24 @@ extern "C"
 			return;
 		delete world;
 	}
+
+	DllExport UnityContactListener* CreateContactListener(
+		b2World* world, 
+		BeginContactCallback beginCallback, 
+		EndContactCallback endCallback)
+	{
+		UnityContactListener* listener = new UnityContactListener(beginCallback, endCallback);
+		world->SetContactListener(listener);
+		return listener;
+	}
+
+	DllExport void DeleteContactListener(UnityContactListener* listener)
+	{
+		if (listener == nullptr)
+			return;
+		delete listener;
+	}
+
 
 	DllExport b2Body* CreateCircleBody(b2World* world, BodyDef definition, CircleShapeDef shape) {
 
