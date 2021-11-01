@@ -52,6 +52,7 @@ struct PolygonShapeDef {
 struct ChainShapeDef {
 	int count;
 	b2Vec2* vertices;
+	int isLoop;
 };
 
 b2BodyDef BuildBodyDef(BodyDef& definition) {
@@ -182,7 +183,15 @@ extern "C"
 
 		b2Body* body = world->CreateBody(&bodyDef);
 		b2ChainShape chainShape;
-		chainShape.CreateChain(shape.vertices, shape.count);
+		if (shape.isLoop)
+		{
+			chainShape.CreateLoop(shape.vertices, shape.count);
+		}
+		else
+		{
+			chainShape.CreateChain(shape.vertices, shape.count);
+		}
+		
 
 		b2FixtureDef fixtureDef = BuildFixtureDef(definition, &chainShape);
 		body->CreateFixture(&fixtureDef);
