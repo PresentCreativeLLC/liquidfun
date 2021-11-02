@@ -1,6 +1,6 @@
 # Hello World examples
 include_directories (${Box2D_SOURCE_DIR})
-add_library(UnityPlugin SHARED UnityPlugin.cpp)
+add_library(UnityPlugin SHARED UnityPlugin.cpp UnityContactListener.h UnityContactListener.cpp)
 target_link_libraries (UnityPlugin Box2D)
 
 set_target_properties(UnityPlugin PROPERTIES
