@@ -11,6 +11,9 @@ struct Contact
 typedef void (*BeginContactCallback)(Contact);
 typedef void (*EndContactCallback)(Contact);
 
+/**
+* @brief This class is a helper class that wraps the contact listener and allow unity to call callback functions on collisions
+*/
 class UnityContactListener : public b2ContactListener
 {
 public:
