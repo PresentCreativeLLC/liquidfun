@@ -22,7 +22,7 @@ option(BOX2D_INSTALL "Install Box2D libs, includes, and CMake scripts" ${BOX2D_I
 option(BOX2D_INSTALL_DOC "Install Box2D documentation" OFF)
 option(BOX2D_BUILD_SHARED "Build Box2D shared libraries" OFF)
 option(BOX2D_BUILD_STATIC "Build Box2D static libraries" ON)
-option(BOX2D_BUILD_EXAMPLES "Build Box2D examples" ON)
+option(BOX2D_BUILD_EXAMPLES "Build Box2D examples" OFF)
 option(BOX2D_BUILD_UNITTESTS "Build Box2D Unit Tests" OFF)
 # NOTE: Code coverage only works on Linux & OSX.
 option(BOX2D_CODE_COVERAGE "Enable the code coverage build option." OFF)
@@ -75,7 +75,7 @@ if(MSVC)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   # Set the maximum warning level for gcc.
-  set(C_FLAGS_WARNINGS "-Wall -Werror -Wno-long-long -Wno-variadic-macros")
+  set(C_FLAGS_WARNINGS "-Wall -Wno-long-long -Wno-variadic-macros")
 endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")

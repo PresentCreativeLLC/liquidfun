@@ -5,7 +5,11 @@
 
 #include "UnityContactListener.h"
 
+#ifdef APPLE
+#define DllExport
+#else
 #define DllExport _declspec(dllexport)
+#endif
 
 #define FALSE 0
 #define TRUE 1
